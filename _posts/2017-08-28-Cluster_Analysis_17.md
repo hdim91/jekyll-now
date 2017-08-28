@@ -1,5 +1,11 @@
-Cluster Analysis
-================
+---
+layout: post
+title: "Cluster Analysis Practice"
+date: 2017-8-28
+categories: rblogging
+tags: test ggplot2
+---
+
 
 **Cluster analysis** helps \* Identifying cohesive subgroups (clusters) of observations \* Determining the number of clusters present \* Obtaning a nested hierarchy of clusters \* Obtaining discrete clusters
 
