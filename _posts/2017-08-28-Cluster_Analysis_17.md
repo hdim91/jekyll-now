@@ -43,7 +43,7 @@ Obtaning a nested hierarchy of clusters \* Obtaining discrete clusters
 
 Euclidean distance between two observations is given by
 
-$$d\_{ij} = \\sqrt{\\sum\_{p=1}^{p}(x\_{ip} - x\_{jp})^2}$$
+$d_{ij} = \sqrt{\sum_{p=1}^{p}(x_{ip} - x\_{jp})^2}$
 , where i and j are observations and P is the number of variables
 
     data(nutrient, package="flexclust")
