@@ -7,7 +7,8 @@ tags: test ggplot2
 ---
 
 
-**Cluster analysis** helps 
+**Cluster analysis** 
+helps 
 - Identifying cohesive subgroups (clusters) of observations 
 - Determining the number of clusters present 
 - Obtaning a nested hierarchy of clusters 
