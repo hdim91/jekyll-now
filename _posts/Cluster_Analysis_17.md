@@ -15,20 +15,24 @@ Obtaning a nested hierarchy of clusters \* Obtaining discrete clusters
 2.  *Scale the data*. If the variables in the analysis vary in range,
     the variables with the largest range will have the greatest impact
     on the results. Three options are available:
-    `df1 <- apply(mydata, 2, function(x){x-mean(x)/sd(x)})`
-    `df2 <- apply(mydata, 2, function(x){x/max(x)})`
-    `df3 <- apply(mydata, 2, function(x){(x-mean(x))/mad(x)})`
-3.  *Screen for outliers*. You can screen for (and remove) univariate
+
+`df1 <- apply(mydata, 2, function(x){x-mean(x)/sd(x)})`
+
+`df2 <- apply(mydata, 2, function(x){x/max(x)})`
+
+`df3 <- apply(mydata, 2, function(x){(x-mean(x))/mad(x)})`
+
+1.  *Screen for outliers*. You can screen for (and remove) univariate
     outliers using functions.
-4.  *Calculate distances*. The most popular measure of the distance
+2.  *Calculate distances*. The most popular measure of the distance
     between two observations is the Euclidean distance.
-5.  *Select a clustering algorithm*. You select a method of clustering
+3.  *Select a clustering algorithm*. You select a method of clustering
     the data.
-6.  *Obtain one or more cluster solutions*
-7.  *Determine the number of clusters present*
-8.  *Obtain a final clustering solution*.
-9.  *Visualize the results*.
-10. *Interpret the clusters*.
+4.  *Obtain one or more cluster solutions*
+5.  *Determine the number of clusters present*
+6.  *Obtain a final clustering solution*.
+7.  *Visualize the results*.
+8.  *Interpret the clusters*.
 
 -   What do the observations in a cluster have in common?
 
@@ -39,8 +43,8 @@ Obtaning a nested hierarchy of clusters \* Obtaining discrete clusters
 
 Euclidean distance between two observations is given by
 
-$d\_{ij} = \\sqrt{\\sum\_{p=1}^{p}(x\_{ip} - x\_{jp})^2}$, where i and j
-are observations and P is the number of variables
+d\_{ij} = , where i and j are observations and P is the number of
+variables
 
     data(nutrient, package="flexclust")
     head(nutrient,4)
