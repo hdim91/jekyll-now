@@ -83,7 +83,8 @@ fit.average <- hclust(d, method = "average")
 plot(fit.average, hang = -1, cex = .8, main = "Average Linkage Clustering")
 ```
 
-[<img src = "{{site.baseurl}}/_posts/Cluster_Analysis_17_files/figure-markdown_github/unnamed-chunk-4-1.png" style = "width: 400px;"/>]({{site.baseurl}})
+![](Cluster_Analysis_17_files/figure-markdown_github/unnamed-chunk-4-1.png)
+
 
 ### 3.1 Selecting the number of clusters
 
