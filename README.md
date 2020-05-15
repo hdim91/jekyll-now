@@ -1,7 +1,7 @@
 # Hyundo Im's blog
 
 **Hyundo Im**
-I am a student of Korea Development Institute (KDI) under the program of Masters of Public Policy.
+I am a research associate of Korea Development Institute (KDI), Department of Knowledge Economy
 
 In this blog, you can find
  - R codes related to different statistical analytic tools
