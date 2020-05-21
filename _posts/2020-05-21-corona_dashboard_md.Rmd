@@ -1,0 +1,270 @@
+---
+title: "Covid-19 Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source_code: embed
+# runtime: shiny
+---
+
+<style>                     
+.navbar {
+  background-color:green;
+  border-color:darkgreen;
+}
+</style>    
+
+```{r setup, include=FALSE}
+library(readr)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(zoo)
+library(scales)
+library(ggthemes)
+library(knitr)
+library(plotly)
+library(data.table)
+# rmarkdown::render("C:\\Users\\master\\Dropbox\\한요셉 박사님 - 백업 및 전체 데이터\\2020년 과제\\코로나 바이러스\\corona_dashboard.Rmd")
+```
+
+```{r , include=FALSE}
+corona <- fread("https://covid.ourworldindata.org/data/ecdc/full_data.csv")
+EU <- c("Austria","Italy","Belgium","Latvia","Bulgaria","Lithuania","Croatia","Luxembourg",
+        "Cyprus","Malta","Czech Republic","Netherlands","Denmark","Poland","Estonia",
+        "Portugal","Finland","Romania","France","Slovakia","Germany","Slovenia","Greece",
+        "Spain","Hungary","Sweden","Ireland","United Kingdom")
+unique(corona$location[corona$country=="기타"])
+corona <- corona %>% 
+  mutate(country = ifelse(location=="South Korea",1,
+                          ifelse(location=="United States",2,
+                                 ifelse(location %in% EU,3,
+                                        ifelse(location=="China",4,
+                                               ifelse(location=="World",6,5))))),
+         country = factor(country,
+                          levels = 1:6,
+                          labels = c("한국","미국","EU&영국","중국","기타","세계")))
+```
+
+
+코로나 Preview
+===================================== 
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### 코로나 바이러스 전세계 일일 추가 확진자 수
+
+```{r}
+# renderPlot({
+graph1 <-   corona %>% 
+    filter(date>="2020-01-23") %>% 
+    mutate(date = as.Date(date)) %>% 
+    group_by(date,country) %>% 
+    summarise(ncase = sum(new_cases,na.rm = TRUE)/1000) %>% 
+  mutate(ncase = ifelse(country=="한국",
+                        ncase*10,
+                        ncase)) %>% 
+    filter(country!="세계") %>% 
+    ggplot(aes(x=date,y=ncase,color=country))+
+    geom_line(size=1)+
+    xlab("날짜")+
+    ylab("천 명 (한국은 백명)")+
+    labs(title="일일 추가 확진자 수",
+         color="",
+         caption = "자료: ECDC")+
+    theme_stata(scheme = "s1mono")+
+    scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week",limits = as.Date(c("2020-01-23",max(corona$date))))
+# })
+
+ggplotly(graph1)
+```
+
+Column {data-width=450}
+-----------------------------------------------------------------------
+
+### `r {max(corona$date)}` 미국,중국 및 유럽 
+
+```{r}
+# renderTable({
+corona %>% 
+    filter(country!="기타") %>% 
+    filter(date==max(corona$date)) %>% 
+    arrange(desc(new_cases)) %>% 
+  rename(날짜 = date,
+           국가명 = location,
+           신규확진자 = new_cases,
+           신규사망자 = new_deaths,
+           총확진자 = total_cases,
+           총사망자 = total_deaths) %>% 
+  select(-country) %>% 
+    kable()
+# })
+```
+
+### `r {max(corona$date)}` 기타 그룹 
+
+```{r}
+# renderTable({
+ corona %>% 
+    filter(country=="기타") %>% 
+    filter(date==max(corona$date)) %>% 
+    arrange(desc(new_cases)) %>% 
+  rename(날짜 = date,
+           국가명 = location,
+           신규확진자 = new_cases,
+           신규사망자 = new_deaths,
+           총확진자 = total_cases,
+           총사망자 = total_deaths) %>% 
+  select(-country) %>% 
+  kable()
+# })
+
+```
+
+코로나 일일/누적
+===================================== 
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+###
+
+```{r}
+
+graph1 <- corona %>% 
+  filter(date>"2020-01-10") %>% 
+  filter(country!="세계") %>% 
+  group_by(date,country) %>% 
+  summarise(new_cases = sum(new_cases,na.rm = FALSE)/100) %>% 
+  ggplot(aes(x=as.Date(date),y=new_cases,fill=country))+
+  geom_bar(stat = "identity")+
+  xlab("날짜")+
+  ylab("백 명")+
+  scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week")+
+  # facet_wrap(~location)+
+  theme_stata(scheme = "s1mono")+
+  labs(title = "전 세계 일일확진자 수",
+       fill="",caption = "주의: 최신 데이터의 경우 국가별 시차 연유로 일부 누락됨")
+ggplotly(graph1)
+
+```
+
+### 
+
+```{r}
+graph1 <- corona %>% 
+  filter(date>"2020-01-10") %>% 
+  filter(country!="세계") %>% 
+  group_by(date,country) %>% 
+  summarise(new_deaths = sum(new_deaths,na.rm = FALSE)/100) %>% 
+  ggplot(aes(x=as.Date(date),y=new_deaths,fill=country))+
+  geom_bar(stat = "identity")+
+  xlab("날짜")+
+  ylab("백 명")+
+  scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week")+
+  # facet_wrap(~location)+
+  theme_stata(scheme = "s1mono") +
+  labs(title = "전 세계 일일사망자 수",
+       fill="",caption = "주의: 최신 데이터의 경우 국가별 시차 연유로 일부 누락됨")
+ggplotly(graph1)
+```
+
+
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+###
+
+```{r}
+graph1 <- corona %>% 
+  filter(date>"2020-01-10") %>% 
+  filter(country!="세계") %>% 
+  group_by(date,country) %>% 
+  summarise(total_cases = sum(total_cases,na.rm = FALSE)/10000) %>% 
+  ggplot(aes(x=as.Date(date),y=total_cases,fill=country))+
+  geom_bar(stat = "identity")+
+  xlab("날짜")+
+  ylab("만 명")+
+  scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week")+
+  # facet_wrap(~location)+
+  theme_stata(scheme = "s1mono")+
+  labs(title = "전 세계 누적 확진자",
+       fill="",
+       caption = "주의: 최신 데이터의 경우 국가별 시차 연유로 일부 누락됨")
+ggplotly(graph1)
+```
+
+###
+
+```{r}
+graph1 <- corona %>% 
+  filter(date>"2020-01-10") %>% 
+  filter(country!="세계") %>% 
+  group_by(date,country) %>% 
+  summarise(total_deaths = sum(total_deaths,na.rm = FALSE)/10000) %>% 
+  ggplot(aes(x=as.Date(date),y=total_deaths,fill=country))+
+  geom_bar(stat = "identity")+
+  xlab("날짜")+
+  ylab("만 명")+
+  scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week")+
+  # facet_wrap(~location)+
+  theme_stata(scheme = "s1mono")+
+  labs(title = "전 세계 누적 사망자",
+       fill="",caption = "주의: 최신 데이터의 경우 국가별 시차 연유로 일부 누락됨")
+ggplotly(graph1)
+```
+
+
+유럽 주요 국가 확진자
+===================================== 
+
+```{r}
+corona %>% 
+  filter(date>"2020-02-21") %>% 
+  filter(location %in% c("France","Germany","Italy","Spain","United Kingdom")) %>% 
+  ggplot(aes(x=as.Date(date),y=new_cases))+
+  geom_bar(stat = "identity")+
+  xlab("날짜")+
+  scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week")+
+  facet_wrap(~location,ncol = 2)+
+  theme_bw()
+```
+
+한,중,일,미 확진자
+===================================== 
+
+```{r}
+corona %>% 
+  filter(date>"2020-02-21") %>% 
+  filter(location %in% c("United States","China","South Korea","Japan")) %>% 
+  mutate(new_cases = ifelse(location == "United States",
+                            new_cases/1000,
+                            new_cases/100)) %>% 
+  ggplot(aes(x=as.Date(date),y=new_cases))+
+  geom_bar(stat = "identity")+
+  xlab("날짜")+
+  scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week")+
+  ylab("백명 (미국은 천명)")+
+  facet_wrap(~location,ncol = 2)+
+  theme_bw()
+```
+
+러시아,인도 및 남미 확진자
+===================================== 
+
+```{r}
+corona %>% 
+  filter(date>"2020-03-10") %>% 
+  filter(location %in% c("Russia","Brazil","India","Peru","Mexico","Chile","Ecuador")) %>% 
+  ggplot(aes(x=as.Date(date),y=new_cases))+
+  geom_bar(stat = "identity")+
+  xlab("날짜")+
+  scale_x_date(labels = date_format("%m-%d"),date_breaks = "2 week")+
+  ylab("신규 확진자 수")+
+  facet_wrap(~location,ncol = 3)+
+  theme_bw()
+```
+
